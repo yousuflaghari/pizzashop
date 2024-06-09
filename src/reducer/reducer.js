@@ -53,13 +53,15 @@ const pizzaSlice = createSlice({
       const orderIndex = state.order.findIndex(
         (order) => order.customerName === customerName
       );
+
       if (orderIndex !== -1) {
         const itemIndex = state.order[orderIndex].items.findIndex(
           (item) => item.name === name && item.userId === userId
         );
+
         if (itemIndex !== -1) {
           // Item already exists, increase the quantity
-          state.order[orderIndex].items[itemIndex].quantity += 1;
+          state.order[orderIndex].items[itemIndex].quantity += quantity; // update to add the specified quantity
           state.order[orderIndex].items[itemIndex].totalPrice =
             state.order[orderIndex].items[itemIndex].quantity * price;
         } else {
@@ -86,6 +88,7 @@ const pizzaSlice = createSlice({
         });
       }
     },
+
     removeItemFromOrder: (state, action) => {
       const { name, userId } = action.payload;
       const customerName = state.currentCustomer;
@@ -144,4 +147,10 @@ export const selectTotalPriceByBookerName = (bookername) => (state) => {
   );
   if (!order) return 0;
   return order.items.reduce((total, item) => total + item.totalPrice, 0);
+};
+
+export const selectCurrentCustomerItems = (state) => {
+  return state.pizza?.order?.find(
+    (singleOrder) => singleOrder.customerName === state.pizza.currentCustomer
+  )?.items;
 };

@@ -6,6 +6,7 @@ import {
   addItemToOrder,
   removeItemFromOrder,
   selectPizzaQuantity,
+  selectCurrentCustomerItems,
 } from "../reducer/reducer";
 
 const ItemContainer = styled.div`
@@ -133,12 +134,15 @@ const Hr = styled.hr`
 const Item = ({ image, name, ingredients, userId }) => {
   const dispatch = useDispatch();
   const quantity = useSelector(selectPizzaQuantity(name, userId));
-
+  const currentCustomerItems = useSelector(selectCurrentCustomerItems) || [];
+  const showAddToCart = !currentCustomerItems.some(
+    (item) => item.name === name
+  );
   const handleAddToCart = () => {
     dispatch(
       addItemToOrder({
         name,
-        quantity: quantity ?? 1,
+        quantity,
         userId,
         price: userId,
       })
@@ -184,25 +188,31 @@ const Item = ({ image, name, ingredients, userId }) => {
           </IngredientList>
           <PriceCart>
             <UserId>Price: {userId}$</UserId>
-            <QuantityContainer>
-              <QuantityButton
-                onClick={() => handleUpdateQuantity(quantity - 1)}
-              >
-                -
-              </QuantityButton>
-              <QuantityDisplay>{quantity}</QuantityDisplay>
-              <QuantityButton
-                onClick={() => handleUpdateQuantity(quantity + 1)}
-              >
-                +
-              </QuantityButton>
-            </QuantityContainer>
-            <AddToCartButton onClick={handleAddToCart}>
-              Add to Cart
-            </AddToCartButton>
-            <RemoveFromCartButton onClick={handleRemoveFromCart}>
-              Remove
-            </RemoveFromCartButton>
+            {!showAddToCart && (
+              <QuantityContainer>
+                <QuantityButton
+                  onClick={() => handleUpdateQuantity(quantity - 1)}
+                >
+                  -
+                </QuantityButton>
+                <QuantityDisplay>{quantity}</QuantityDisplay>
+                <QuantityButton
+                  onClick={() => handleUpdateQuantity(quantity + 1)}
+                >
+                  +
+                </QuantityButton>
+              </QuantityContainer>
+            )}
+            {showAddToCart && (
+              <AddToCartButton onClick={handleAddToCart}>
+                Add to Cart
+              </AddToCartButton>
+            )}
+            {!showAddToCart && (
+              <RemoveFromCartButton onClick={handleRemoveFromCart}>
+                Remove
+              </RemoveFromCartButton>
+            )}
           </PriceCart>
         </DetailsContainer>
       </ContentContainer>
